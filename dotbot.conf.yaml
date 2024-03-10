@@ -1,0 +1,16 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+- link:
+    ~/.aerospace.toml: 
+      if: '[ `uname` = Darwin ]'
+      path: aerospace.toml
+    ~/.zshrc: zshrc
+    ~/.aliases: aliases
+    ~/.sshagent: sshagent
+    ~/.functions: functions
+    ~/.config/nvim: config/nvim
+    ~/.config/tmux: config/tmux
+    ~/.config/alacritty: config/alacritty
+    ~/bin: bin

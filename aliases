@@ -1,0 +1,49 @@
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# some more ls aliases
+alias src='source ~/.zshrc'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias p='punwd'
+
+alias gb='git branch'
+alias gba='git branch --all'
+alias gpl='git pull'
+alias gpu='git push -u origin $(git_current_branch)'
+alias ghf='git push -f'
+alias gs='git status'
+alias ga='git add .'
+alias gf='git diff'
+alias gc='git commit -m '
+alias gco='git checkout'
+alias gl='git log --date=local --graph --decorate=short'
+alias gp='git log --date=local -p'
+alias glr='git log --pretty=format:"%h%x09%an%x09%ad%x09%s"'
+alias gls='git log --date=local --name-status'
+alias glo='git log --oneline'
+alias g='git'
+#alias t='tmux-sessionizer'
+#alias w='tmux-windowizer'
+
+alias kgp='kubectl get pods'
+alias k='kubectl'
+
+alias jpp='python -mjson.tool'
+alias ijs='node -e "const repl = require(\"repl\"); repl.start();"'
+
+alias start_mysql='docker run -p3306:3306 -e MYSQL_ROOT_PASSWORD=password -d -v mysql57_data:/var/lib/mysql mysql:5.7'
+alias phx='iex -S mix phx.server'
+alias mfc='mix format --check-formatted'
+alias mt='mix test'
+alias m='mix'
+alias mgd='mix deps.get'
+alias mc='mix compile --force --warnings-as-errors'
+
