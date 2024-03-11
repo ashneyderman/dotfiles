@@ -103,6 +103,7 @@ source $ZSH/oh-my-zsh.sh
 [ -f ~/.functions ] && source ~/.functions
 [ -f ~/.sshagent ] && source ~/.sshagent
 [ -f ~/.secrets ] && source ~/.secrets
+[ -f ~/.localstuff ] && source ~/.localstuff
 
 #ulimit -n 65536
 #ulimit -u 2048
