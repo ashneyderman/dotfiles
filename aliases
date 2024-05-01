@@ -21,6 +21,7 @@ alias start_mysql='docker run -p3306:3306 -e MYSQL_ROOT_PASSWORD=password -d -v 
 
 alias phx='iex -S mix phx.server'
 alias mfc='mix format --check-formatted'
+alias mf='mix format'
 alias mt='mix test'
 alias mtt='mix test --trace'
 alias m='mix'
