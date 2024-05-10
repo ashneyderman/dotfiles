@@ -108,8 +108,8 @@ source $ZSH/oh-my-zsh.sh
 #ulimit -n 65536
 #ulimit -u 2048
 
-. $HOME/.asdf/asdf.sh
-. $HOME/.asdf/completions/asdf.bash
+[ -f $HOME/.asdf/asdf.sh ] && $HOME/.asdf/asdf.sh
+[ -f $HOME/.asdf/completions/asdf.bash ] && $HOME/.asdf/completions/asdf.bash
 
 export PATH=$PATH:$HOME/bin
 export PATH=$HOME/.config/tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
@@ -117,6 +117,6 @@ export PATH=$HOME/.config/tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export ERL_AFLAGS="-kernel shell_history enabled"
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+[ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
