@@ -119,3 +119,4 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"

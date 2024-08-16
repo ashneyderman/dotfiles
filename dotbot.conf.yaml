@@ -13,4 +13,6 @@
     ~/.config/nvim: config/nvim
     ~/.config/tmux: config/tmux
     ~/.config/alacritty: config/alacritty
+    ~/.config/wezterm: config/wezterm
+    ~/.config/starship: config/starship
     ~/bin: bin
