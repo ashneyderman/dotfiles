@@ -9,7 +9,7 @@
     ~/.zshrc: zshrc
     ~/.aliases: aliases
     ~/.sshagent: sshagent
-    ~/.functions: functions
+    ~/.functions.sh: functions.sh
     ~/.config/nvim: config/nvim
 #    ~/.config/nvim: config/nvim_minimal
     ~/.config/tmux: config/tmux
