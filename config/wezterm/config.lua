@@ -5,6 +5,17 @@ if wezterm.config_builder then
 	config = wezterm.config_builder()
 end
 
+wezterm.on("open-uri", function(window, pane, uri)
+	local start, match_end = uri:find("vscode://")
+	if start == 1 then
+		local cwd = pane:get_current_working_dir()
+		local file_path = cwd .. uri:sub(match_end + 1)
+		local url = "vscode://file" .. file_path
+		window.open_with(url)
+		return false
+	end
+end)
+
 config = {
 	default_cursor_style = "SteadyBar",
 	automatically_reload_config = true,
@@ -14,9 +25,13 @@ config = {
 	check_for_updates = false,
 	use_fancy_tab_bar = false,
 	tab_bar_at_bottom = false,
-	font_size = 12.0,
-	font = wezterm.font("JetBrainsMonoNerdFont", {}),
+	font_size = 14.0,
+	font = wezterm.font("JetBrainsMono Nerd Font", {}),
 	enable_tab_bar = false,
+	keys = {
+		{ key = 'L', mods = 'CTRL', action = wezterm.action.ShowDebugOverlay },
+    { key = 'W', mods = 'SHIFT|CTRL|ALT', action = wezterm.action.CloseCurrentPane { confirm = true } },
+	},
 	window_padding = {
 		left = 3,
 		right = 3,
@@ -86,6 +101,12 @@ config = {
 		{
 			regex = "\\b\\w+@[\\w-]+(\\.[\\w-]+)+\\b",
 			format = "mailto:$0",
+			highlight = 0,
+		},
+		{
+			regex = "[/.A-Za-z0-9_-]+\\.[A-Za-z0-9]+(:\\d+)*(?=\\s*|$)",
+			format = "file://$0",
+			highlight = 1,
 		},
 	},
 }

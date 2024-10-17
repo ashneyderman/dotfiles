@@ -11,6 +11,7 @@
     ~/.sshagent: sshagent
     ~/.functions: functions
     ~/.config/nvim: config/nvim
+#    ~/.config/nvim: config/nvim_minimal
     ~/.config/tmux: config/tmux
     ~/.config/alacritty: config/alacritty
     ~/.config/wezterm: config/wezterm

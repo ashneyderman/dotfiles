@@ -100,7 +100,7 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 [ -f ~/.aliases ] && source ~/.aliases
-[ -f ~/.functions ] && source ~/.functions
+[ -f ~/.functions.sh ] && source ~/.functions.sh
 [ -f ~/.sshagent ] && source ~/.sshagent
 [ -f ~/.secrets ] && source ~/.secrets
 [ -f ~/.localstuff ] && source ~/.localstuff
