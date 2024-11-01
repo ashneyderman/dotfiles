@@ -29,7 +29,7 @@ config = {
 	font = wezterm.font("JetBrainsMono Nerd Font", {}),
 	enable_tab_bar = false,
 	keys = {
-		{ key = 'L', mods = 'CTRL', action = wezterm.action.ShowDebugOverlay },
+    key = 'L', mods = 'CTRL', action = wezterm.action.ShowDebugOverlay },
     { key = 'W', mods = 'SHIFT|CTRL|ALT', action = wezterm.action.CloseCurrentPane { confirm = true } },
 	},
 	window_padding = {
