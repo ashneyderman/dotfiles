@@ -24,10 +24,10 @@ config = {
 	window_decorations = "RESIZE",
 	check_for_updates = false,
 	use_fancy_tab_bar = false,
-	tab_bar_at_bottom = false,
+	tab_bar_at_bottom = true,
 	font_size = 14.0,
 	font = wezterm.font("JetBrainsMono Nerd Font", {}),
-	enable_tab_bar = false,
+	enable_tab_bar = true,
 	keys = {
 		{ key = "L", mods = "CTRL", action = wezterm.action.ShowDebugOverlay },
 		{ key = "W", mods = "SHIFT|CTRL|ALT", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
