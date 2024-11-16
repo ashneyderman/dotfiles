@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local act = wezterm.action
 local config = {}
 
 if wezterm.config_builder then
@@ -27,11 +28,8 @@ config = {
 	tab_bar_at_bottom = true,
 	font_size = 14.0,
 	font = wezterm.font("JetBrainsMono Nerd Font", {}),
+	font_with_fallback = { "JetBrainsMono", "Fira Code" },
 	enable_tab_bar = true,
-	keys = {
-		{ key = "L", mods = "CTRL", action = wezterm.action.ShowDebugOverlay },
-		{ key = "W", mods = "SHIFT|CTRL|ALT", action = wezterm.action.CloseCurrentPane({ confirm = true }) },
-	},
 	window_padding = {
 		left = 3,
 		right = 3,
