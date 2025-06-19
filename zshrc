@@ -108,11 +108,7 @@ source $ZSH/oh-my-zsh.sh
 #ulimit -n 65536
 #ulimit -u 2048
 
-[ -f $HOME/.asdf/asdf.sh ] && $HOME/.asdf/asdf.sh
-[ -f $HOME/.asdf/completions/asdf.bash ] && $HOME/.asdf/completions/asdf.bash
-
-export PATH=$PATH:$HOME/bin
-export PATH=$HOME/.config/tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
+export PATH=$PATH:$HOME/bin:$HOME/.local/bin:$HOME/local/bin:"${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export ERL_AFLAGS="-kernel shell_history enabled"
@@ -120,3 +116,16 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
+
+# append completions to fpath
+fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
+# initialise completions with ZSH's compinit
+autoload -Uz compinit && compinit
+
+# pnpm
+export PNPM_HOME="/home/alex/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
