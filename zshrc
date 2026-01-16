@@ -69,52 +69,21 @@ plugins=(git docker kubectl asdf)
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-#export PROMPT="%f%b%k$(build_prompt)"
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-[ -f ~/.aliases ] && source ~/.aliases
 [ -f ~/.functions.sh ] && source ~/.functions.sh
+[ -f ~/.aliases ] && source ~/.aliases
 [ -f ~/.sshagent ] && source ~/.sshagent
 [ -f ~/.secrets ] && source ~/.secrets
 [ -f ~/.localstuff ] && source ~/.localstuff
 
-#ulimit -n 65536
-#ulimit -u 2048
-
-export PATH=$PATH:$HOME/bin:$HOME/.local/bin:$HOME/local/bin:"${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
+add_to_path_end "$HOME/bin"
+add_to_path_end "$HOME/.local/bin"
+add_to_path_end "$HOME/local/bin"
+add_to_path_end "${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export ERL_AFLAGS="-kernel shell_history enabled"
 
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
-eval "$(zoxide init zsh)"
 
 # append completions to fpath
 fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
@@ -122,14 +91,10 @@ fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
 autoload -Uz compinit && compinit
 
 # pnpm
-export PNPM_HOME="/home/alex/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+export PNPM_HOME="$HOME/.local/share/pnpm"
+add_to_path "$PNPM_HOME"
 # pnpm end
 
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+add_to_path "/opt/homebrew/opt/libpq/bin"
 
-source "$HOME/bin/mkwt"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

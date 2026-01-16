@@ -126,3 +126,11 @@ Examples:
     echo "Successfully created worktree at: $FULL_PATH"
     echo "Branch: $BRANCH"
 }
+
+# Helper function to add directory to PATH only if it exists
+add_to_path() {
+  [[ -d "$1" ]] && export PATH="$1:$PATH"
+}
+add_to_path_end() {
+  [[ -d "$1" ]] && export PATH="$PATH:$1"
+}
