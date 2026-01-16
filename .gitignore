@@ -1,1 +1,4 @@
 .DS_Store
+.agf/
+.claude/commands/agf
+.opencode/skill/agf

@@ -30,6 +30,7 @@ config = {
 	font_size = 14.0,
 	font = wezterm.font("JetBrainsMono Nerd Font", {}),
 	max_fps = 240,
+	scrollback_lines = 1000000,
 	window_padding = {
 		left = 3,
 		right = 3,

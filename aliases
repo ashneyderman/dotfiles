@@ -28,4 +28,4 @@ alias m='mix'
 alias mgd='mix deps.get'
 alias mdg='mix deps.get'
 alias mc='mix compile --force --warnings-as-errors'
-
+alias z='zoxide'
