@@ -47,6 +47,11 @@ config.keys = {
 	{ key = "W", mods = "CTRL|ALT", action = act.CloseCurrentPane({ confirm = true }) },
 	{ key = "[", mods = "CTRL|ALT", action = act.SwitchWorkspaceRelative(1) },
 	{ key = "]", mods = "CTRL|ALT", action = act.SwitchWorkspaceRelative(-1) },
+	{ key = "LeftArrow", mods = "ALT", action = act.SendKey({ key = "b", mods = "ALT" }) },
+	{ key = "RightArrow", mods = "ALT", action = act.SendKey({ key = "f", mods = "ALT" }) },
+	{ key = "LeftArrow", mods = "CMD", action = act.SendKey({ key = "A", mods = "CTRL" }) },
+	{ key = "RightArrow", mods = "CMD", action = act.SendKey({ key = "E", mods = "CTRL" }) },
+	{ key = "Backspace", mods = "CMD", action = act.SendKey({ key = "U", mods = "CTRL" }) },
 }
 
 return config

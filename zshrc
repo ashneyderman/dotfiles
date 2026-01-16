@@ -115,7 +115,6 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(zoxide init zsh)"
-eval "$(starship init zsh)"
 
 # append completions to fpath
 fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
@@ -133,3 +132,4 @@ esac
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 source "$HOME/bin/mkwt"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
