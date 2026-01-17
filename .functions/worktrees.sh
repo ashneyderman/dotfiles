@@ -2,6 +2,7 @@ function mkwt() {
     local PATH_PREFIX=".worktrees"
     local BRANCH=""
     local TARGET_PATH=""
+    local NEW_WINDOW=false
 
     # Usage message
     local usage_msg="Usage: mkwt [OPTIONS] <path>
@@ -14,13 +15,15 @@ Arguments:
 Options:
     -b, --branch <name>     Branch name to checkout (default: same as path)
     -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees)
+    -n, --new-window        Open in new Ghostty terminal instead of cd
     -h, --help              Display this help message
 
 Examples:
     mkwt feature-x
     mkwt -b main feature-y
     mkwt --branch main feature-y
-    mkwt -p ~/worktrees feature-z"
+    mkwt -p ~/worktrees feature-z
+    mkwt -n feature-w"
 
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -32,6 +35,10 @@ Examples:
             -p|--path-prefix)
                 PATH_PREFIX="$2"
                 shift 2
+                ;;
+            -n|--new-window)
+                NEW_WINDOW=true
+                shift
                 ;;
             -h|--help)
                 echo "$usage_msg"
@@ -99,10 +106,21 @@ Examples:
     echo "Creating worktree at: $FULL_PATH"
     git worktree add --no-checkout $BRANCH_FLAG "$BRANCH" "$FULL_PATH" || return 1
 
-    # cd into target directory and checkout
-    cd "$FULL_PATH" || return 1
-    git checkout "$BRANCH" || return 1
+    # Either cd or open new window based on flag
+    if [[ "$NEW_WINDOW" = true ]]; then
+        # Checkout in the background (without cd)
+        (cd "$FULL_PATH" && git checkout "$BRANCH") || return 1
 
-    echo "Successfully created worktree at: $FULL_PATH"
-    echo "Branch: $BRANCH"
+        echo "Successfully created worktree at: $FULL_PATH"
+        echo "Branch: $BRANCH"
+        echo "Opening new Ghostty window..."
+        open -a "Ghostty" "$FULL_PATH"
+    else
+        # cd into target directory and checkout
+        cd "$FULL_PATH" || return 1
+        git checkout "$BRANCH" || return 1
+
+        echo "Successfully created worktree at: $FULL_PATH"
+        echo "Branch: $BRANCH"
+    fi
 }
