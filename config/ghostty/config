@@ -1,0 +1,18 @@
+font-family="JetBrainsMono Nerd Font"
+font-size=17.0
+
+window-height = 100
+window-width = 100
+
+theme = GitHub Dark High Contrast
+macos-option-as-alt=true
+
+keybind = alt+shift+arrow_up=goto_split:up
+keybind = alt+shift+arrow_down=goto_split:down
+keybind = alt+shift+arrow_left=goto_split:left
+keybind = alt+shift+arrow_right=goto_split:right
+keybind = performable:ctrl+tab=goto_split:next
+keybind = performable:ctrl+shift+tab=goto_split:previous
+
+# split-divider-color = #383838
+split-divider-color = #383838

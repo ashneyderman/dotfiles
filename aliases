@@ -12,13 +12,16 @@ alias src='source ~/.zshrc'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias c='clear'
 
 alias jpp='python -mjson.tool'
 alias ijs='node -e "const repl = require(\"repl\"); repl.start();"'
 
 alias start_mysql57='docker run -p3306:3306 -e MYSQL_ROOT_PASSWORD=password -d -v mysql57_data:/var/lib/mysql mysql:5.7'
 alias start_mysql='docker run -p3306:3306 -e MYSQL_ROOT_PASSWORD=password -d -v mysql80_data:/var/lib/mysql mysql:8.0'
+alias start_pg='docker run -p5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name postgres1 postgis/postgis:12-3.1 &'
 
+# elixir aliases
 alias phx='iex -S mix phx.server'
 alias mfc='mix format --check-formatted'
 alias mf='mix format'
@@ -28,3 +31,32 @@ alias m='mix'
 alias mgd='mix deps.get'
 alias mdg='mix deps.get'
 alias mc='mix compile --force --warnings-as-errors'
+
+# ghostty aliases
+alias themes='ghostty +list-themes'
+
+# git - note most of the aliases are already coming from oh-my-zsh package. This is in addition
+alias glod='git log --format="%C(auto)%h %ad %s %d" --date=short'
+alias lswt='git worktree list'
+alias rmwt='git worktree remove'
+alias rmwtf='git worktree remove --force'
+
+# Claude
+alias cld='claude'
+## -----
+## with model selected
+alias clds='claude --model sonnet'
+alias cldo='claude --model opus'
+alias cldh='claude --model haiku'
+## -----
+## yolo mode
+alias cldy='claude --dangerously-skip-permissions'
+alias cldys='claude --dangerously-skip-permissions --model sonnet'
+alias cldyo='claude --dangerously-skip-permissions --model opus'
+alias cldyh='claude --dangerously-skip-permissions --model haiku'
+## -----
+## programmatic mode
+alias cldyp='claude --dangerously-skip-permissions -p'
+alias cldysp='claude --dangerously-skip-permissions --model sonnet -p'
+alias cldyop='claude --dangerously-skip-permissions --model opus -p'
+alias cldyhp='claude --dangerously-skip-permissions --model haiku -p'
