@@ -3,15 +3,16 @@
       create: true
       relink: true
 - link:
-    ~/.aerospace.toml: 
-      if: '[ `uname` = Darwin ]'
+    ~/.aerospace.toml:
+      if: "[ `uname` = Darwin ]"
       path: aerospace.toml
     ~/.zshrc: zshrc
     ~/.aliases: aliases
     ~/.sshagent: sshagent
+    ~/.functions: .functions
     ~/.functions.sh: functions.sh
     ~/.config/nvim: config/nvim
-#    ~/.config/nvim: config/nvim_minimal
+    #    ~/.config/nvim: config/nvim_minimal
     ~/.config/tmux: config/tmux
     ~/.config/alacritty: config/alacritty
     ~/.config/wezterm: config/wezterm

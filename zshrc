@@ -75,26 +75,27 @@ source $ZSH/oh-my-zsh.sh
 [ -f ~/.secrets ] && source ~/.secrets
 [ -f ~/.localstuff ] && source ~/.localstuff
 
-add_to_path_end "$HOME/bin"
-add_to_path_end "$HOME/.local/bin"
-add_to_path_end "$HOME/local/bin"
-add_to_path_end "${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
+add_path "$HOME/bin"
+add_path "$HOME/.local/bin"
+add_path "$HOME/local/bin"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export ERL_AFLAGS="-kernel shell_history enabled"
 
 [ -f /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# append completions to fpath
-fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
-# initialise completions with ZSH's compinit
-autoload -Uz compinit && compinit
+# asdf configuration (only if asdf is installed)
+if [[ -n "$ASDF_DATA_DIR" ]] || [[ -d "$HOME/.asdf" ]]; then
+  export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+  fpath=(${ASDF_DATA_DIR:-$HOME/.asdf}/completions $fpath)
+  autoload -Uz compinit && compinit
+fi
 
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
-add_to_path "$PNPM_HOME"
+prepend_path "$PNPM_HOME"
 # pnpm end
 
-add_to_path "/opt/homebrew/opt/libpq/bin"
+prepend_path "/opt/homebrew/opt/libpq/bin"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
