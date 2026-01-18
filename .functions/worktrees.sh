@@ -124,3 +124,91 @@ Examples:
         echo "Branch: $BRANCH"
     fi
 }
+
+function edwt() {
+    # Usage message
+    local usage_msg="Usage: edwt [OPTIONS] <path>
+
+Create a git worktree, open in Zed, and manage with AeroSpace if available.
+
+Arguments:
+    path                Target path for the worktree (required)
+
+Options:
+    -b, --branch <name>     Branch name to checkout (default: same as path)
+    -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees)
+    -h, --help              Display this help message
+
+Examples:
+    edwt feature-x
+    edwt -b main feature-y
+    edwt --branch main feature-y
+    edwt -p ~/worktrees feature-z"
+
+    # Check for help flag first
+    for arg in "$@"; do
+        if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+            echo "$usage_msg"
+            return 0
+        fi
+    done
+
+    # Check if aerospace is available
+    local HAS_AEROSPACE=false
+    if command -v aerospace >/dev/null 2>&1; then
+        HAS_AEROSPACE=true
+    fi
+
+    # Find empty workspace if aerospace is available
+    local TARGET_WORKSPACE=""
+    if [[ "$HAS_AEROSPACE" = true ]]; then
+        # Check workspaces 1-5 for an empty one
+        for ws in {1..5}; do
+            local window_count=$(aerospace list-windows --workspace "$ws" 2>/dev/null | wc -l | tr -d ' ')
+            if [[ "$window_count" -eq 0 ]]; then
+                TARGET_WORKSPACE="$ws"
+                echo "Found empty workspace: $TARGET_WORKSPACE"
+                break
+            fi
+        done
+
+        if [[ -z "$TARGET_WORKSPACE" ]]; then
+            # No empty workspace found, use current one
+            TARGET_WORKSPACE=$(aerospace list-workspaces --focused)
+            echo "No empty workspace found, using current workspace: $TARGET_WORKSPACE"
+        fi
+    fi
+
+    # Save current directory
+    pushd . >/dev/null || return 1
+
+    # Create the worktree
+    mkwt "$@" || {
+        popd >/dev/null
+        return 1
+    }
+
+    # Open in Zed
+    echo "Opening in Zed..."
+    zed . || {
+        popd >/dev/null
+        return 1
+    }
+
+    # If aerospace is available, move window to target workspace
+    if [[ "$HAS_AEROSPACE" = true ]] && [[ -n "$TARGET_WORKSPACE" ]]; then
+        # Give Zed a moment to fully launch
+        sleep 0.5
+
+        echo "Moving Zed window to workspace $TARGET_WORKSPACE..."
+        aerospace move-node-to-workspace "$TARGET_WORKSPACE"
+
+        echo "Switching to workspace $TARGET_WORKSPACE..."
+        aerospace workspace "$TARGET_WORKSPACE"
+    fi
+
+    # Return to original directory
+    popd >/dev/null
+
+    echo "Workspace setup complete!"
+}
