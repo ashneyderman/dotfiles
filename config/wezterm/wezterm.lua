@@ -17,6 +17,8 @@ wezterm.on("update-right-status", function(window, pane)
 	window:set_right_status(window:active_workspace())
 end)
 
+config.default_prog = { 'zsh', '-l' }
+
 config.keys = {
 	-- Prompt for a name to use for a new workspace and switch to it.
 	{
