@@ -228,3 +228,177 @@ Examples:
 
     echo "Workspace setup complete!"
 }
+
+function _rmwt() {
+    local FORCE=false
+    local DRY_RUN=false
+    local patterns=()
+
+    # Usage message
+    local usage_msg="Usage: rmwt [OPTIONS] <pattern>...
+
+Remove git worktrees matching the given patterns.
+
+Arguments:
+    pattern             Worktree name or glob pattern (can specify multiple)
+
+Options:
+    -f, --force         Skip confirmation and force removal even if dirty
+    -n, --dry-run       Show what would be removed without removing
+    -h, --help          Display this help message
+
+Examples:
+    rmwt feature-x
+    rmwt feature-x feature-y
+    rmwt feature-*
+    rmwt -f feature-x
+    rmwt -n *-test"
+
+    # Parse command line arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -f|--force)
+                FORCE=true
+                shift
+                ;;
+            -n|--dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -h|--help)
+                echo "$usage_msg"
+                return 0
+                ;;
+            -*)
+                echo "Error: Unknown option: $1" >&2
+                echo "Use --help for usage information" >&2
+                return 1
+                ;;
+            *)
+                patterns+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    # Validate at least one pattern provided
+    if [[ ${#patterns[@]} -eq 0 ]]; then
+        echo "Error: at least one pattern is required" >&2
+        echo "Use --help for usage information" >&2
+        return 1
+    fi
+
+    # Get list of worktrees (excluding the main worktree)
+    local main_worktree=$(git worktree list --porcelain 2>/dev/null | grep -m1 "^worktree" | cut -d' ' -f2)
+    if [[ -z "$main_worktree" ]]; then
+        echo "Error: not in a git repository or no worktrees found" >&2
+        return 1
+    fi
+
+    # Build list of worktree paths and names
+    local -a worktree_paths=()
+    local -a worktree_names=()
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^worktree\ (.+)$ ]]; then
+            local wt_path="${match[1]}"
+            # Skip main worktree
+            if [[ "$wt_path" != "$main_worktree" ]]; then
+                worktree_paths+=("$wt_path")
+                worktree_names+=("$(basename "$wt_path")")
+            fi
+        fi
+    done < <(git worktree list --porcelain 2>/dev/null)
+
+    if [[ ${#worktree_paths[@]} -eq 0 ]]; then
+        echo "No worktrees found (excluding main repository)" >&2
+        return 1
+    fi
+
+    # Find worktrees matching the patterns
+    local -a to_remove=()
+    for pattern in "${patterns[@]}"; do
+        local found=false
+        local idx=1
+        for name in "${worktree_names[@]}"; do
+            local wt_path="${worktree_paths[$idx]}"
+            # Check if pattern matches the name (using glob matching)
+            if [[ "$name" == $~pattern ]] || [[ "$wt_path" == $~pattern ]]; then
+                # Avoid duplicates
+                local already_added=false
+                for existing in "${to_remove[@]}"; do
+                    if [[ "$existing" == "$wt_path" ]]; then
+                        already_added=true
+                        break
+                    fi
+                done
+                if [[ "$already_added" = false ]]; then
+                    to_remove+=("$wt_path")
+                fi
+                found=true
+            fi
+            ((idx++))
+        done
+        if [[ "$found" = false ]]; then
+            echo "Warning: no worktree matches pattern '$pattern'" >&2
+        fi
+    done
+
+    if [[ ${#to_remove[@]} -eq 0 ]]; then
+        echo "No worktrees matched the given patterns" >&2
+        return 1
+    fi
+
+    # Show what will be removed
+    echo "Worktrees to remove:"
+    for wt in "${to_remove[@]}"; do
+        echo "  - $wt"
+    done
+
+    if [[ "$DRY_RUN" = true ]]; then
+        echo "(dry run - no worktrees were removed)"
+        return 0
+    fi
+
+    # Confirm removal unless force flag is set
+    if [[ "$FORCE" = false ]]; then
+        local confirm_msg
+        if [[ ${#to_remove[@]} -eq 1 ]]; then
+            confirm_msg="Remove this worktree? [y/N] "
+        else
+            confirm_msg="Remove these ${#to_remove[@]} worktrees? [y/N] "
+        fi
+        echo -n "$confirm_msg"
+        read -r response
+        if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            echo "Aborted."
+            return 0
+        fi
+    fi
+
+    # Remove each worktree
+    local failed=0
+    local force_flag=""
+    if [[ "$FORCE" = true ]]; then
+        force_flag="--force"
+    fi
+
+    for wt in "${to_remove[@]}"; do
+        echo "Removing: $wt"
+        if git worktree remove $force_flag "$wt"; then
+            echo "  ✓ Removed successfully"
+        else
+            echo "  ✗ Failed to remove (use -f to force)" >&2
+            ((failed++))
+        fi
+    done
+
+    if [[ $failed -gt 0 ]]; then
+        echo "$failed worktree(s) failed to remove" >&2
+        return 1
+    fi
+
+    echo "All worktrees removed successfully"
+}
+
+# Alias with noglob so patterns like test-* don't get expanded by the shell
+alias rmwt='noglob _rmwt'

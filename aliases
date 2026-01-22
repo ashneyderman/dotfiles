@@ -38,8 +38,7 @@ alias themes='ghostty +list-themes'
 # git - note most of the aliases are already coming from oh-my-zsh package. This is in addition
 alias glod='git log --format="%C(auto)%h %ad %s %d" --date=short'
 alias lswt='git worktree list'
-alias rmwt='git worktree remove'
-alias rmwtf='git worktree remove --force'
+# rmwt is now a function in .functions/worktrees.sh (supports multiple args and globs)
 
 # Claude
 alias cld='claude'
