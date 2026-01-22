@@ -1,5 +1,6 @@
 function mkwt() {
     local PATH_PREFIX=".worktrees"
+    local PATH_PREFIX_EXPLICIT=false
     local BRANCH=""
     local TARGET_PATH=""
     local NEW_WINDOW=false
@@ -14,7 +15,7 @@ Arguments:
 
 Options:
     -b, --branch <name>     Branch name to checkout (default: same as path)
-    -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees)
+    -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees or parent of current worktree)
     -n, --new-window        Open in new Ghostty terminal instead of cd
     -h, --help              Display this help message
 
@@ -34,6 +35,7 @@ Examples:
                 ;;
             -p|--path-prefix)
                 PATH_PREFIX="$2"
+                PATH_PREFIX_EXPLICIT=true
                 shift 2
                 ;;
             -n|--new-window)
@@ -61,6 +63,20 @@ Examples:
                 ;;
         esac
     done
+
+    # Auto-detect worktree parent if -p not explicitly set
+    if [[ "$PATH_PREFIX_EXPLICIT" = false ]]; then
+        if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            local current_toplevel=$(git rev-parse --show-toplevel 2>/dev/null)
+            local main_worktree=$(git worktree list --porcelain 2>/dev/null | grep -m1 "^worktree" | cut -d' ' -f2)
+
+            if [[ -n "$current_toplevel" ]] && [[ -n "$main_worktree" ]] && [[ "$current_toplevel" != "$main_worktree" ]]; then
+                # We're in a worktree (not the main repo)
+                PATH_PREFIX="$(dirname "$current_toplevel")"
+                echo "Detected worktree, using parent directory: $PATH_PREFIX"
+            fi
+        fi
+    fi
 
     # Validate required parameter
     if [[ -z "$TARGET_PATH" ]]; then
@@ -136,7 +152,7 @@ Arguments:
 
 Options:
     -b, --branch <name>     Branch name to checkout (default: same as path)
-    -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees)
+    -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees or parent of current worktree)
     -h, --help              Display this help message
 
 Examples:
