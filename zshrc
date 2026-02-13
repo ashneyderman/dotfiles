@@ -99,3 +99,5 @@ prepend_path "$PNPM_HOME"
 prepend_path "/opt/homebrew/opt/libpq/bin"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+. "$HOME/.local/bin/env"
