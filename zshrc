@@ -75,9 +75,6 @@ source $ZSH/oh-my-zsh.sh
 [ -f ~/.secrets ] && source ~/.secrets
 [ -f ~/.localstuff ] && source ~/.localstuff
 
-add_path "$HOME/bin"
-add_path "$HOME/.local/bin"
-add_path "$HOME/local/bin"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export ERL_AFLAGS="-kernel shell_history enabled"
@@ -96,8 +93,9 @@ export PNPM_HOME="$HOME/.local/share/pnpm"
 prepend_path "$PNPM_HOME"
 # pnpm end
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 prepend_path "/opt/homebrew/opt/libpq/bin"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-. "$HOME/.local/bin/env"
+prepend_path "$HOME/bin"
+prepend_path "$HOME/.local/bin"
+prepend_path "$HOME/local/bin"
