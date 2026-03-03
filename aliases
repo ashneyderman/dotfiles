@@ -22,7 +22,6 @@ alias start_mysql='docker run -p3306:3306 -e MYSQL_ROOT_PASSWORD=password -d -v 
 alias start_pg='docker run -p5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name postgres1 postgis/postgis:12-3.1 &'
 
 # elixir aliases
-alias phx='iex -S mix phx.server'
 alias mfc='mix format --check-formatted'
 alias mf='mix format'
 alias mt='mix test'
@@ -31,6 +30,9 @@ alias m='mix'
 alias mgd='mix deps.get'
 alias mdg='mix deps.get'
 alias mc='mix compile --force --warnings-as-errors'
+alias iexs='PATH="$(asdf where elixir)/bin:$(asdf where erlang)/bin:$PATH" iex -S'
+alias iexm='PATH="$(asdf where elixir)/bin:$(asdf where erlang)/bin:$PATH" iex -S mix'
+alias phx='PATH="$(asdf where elixir)/bin:$(asdf where erlang)/bin:$PATH" iex -S mix phx.server'
 
 # ghostty aliases
 alias themes='ghostty +list-themes'
