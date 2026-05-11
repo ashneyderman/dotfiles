@@ -9,6 +9,8 @@ function mkwt() {
     local usage_msg="Usage: mkwt [OPTIONS] <path>
 
 Create a git worktree with automatic branch handling.
+On success, changes the current working directory to the new worktree
+(unless -n/--new-window is given).
 
 Arguments:
     path                Target path for the worktree (required)
@@ -145,7 +147,8 @@ function edwt() {
     # Usage message
     local usage_msg="Usage: edwt [OPTIONS] <path>
 
-Create a git worktree, open in Zed, and manage with AeroSpace if available.
+Create a git worktree, open the project in Zed, and move it to the next
+empty AeroSpace workspace (if AeroSpace is available).
 
 Arguments:
     path                Target path for the worktree (required)
