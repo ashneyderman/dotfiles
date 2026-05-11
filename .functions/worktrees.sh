@@ -1,5 +1,5 @@
 function mkwt() {
-    local PATH_PREFIX=".worktrees"
+    local PATH_PREFIX=""
     local PATH_PREFIX_EXPLICIT=false
     local BRANCH=""
     local TARGET_PATH=""
@@ -15,7 +15,7 @@ Arguments:
 
 Options:
     -b, --branch <name>     Branch name to checkout (default: same as path)
-    -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees or parent of current worktree)
+    -p, --path-prefix <dir> Path prefix for worktree (default: \$HOME/worktrees/<project>)
     -n, --new-window        Open in new Ghostty terminal instead of cd
     -h, --help              Display this help message
 
@@ -64,18 +64,15 @@ Examples:
         esac
     done
 
-    # Auto-detect worktree parent if -p not explicitly set
+    # Default path prefix: $HOME/worktrees/<project_base>
     if [[ "$PATH_PREFIX_EXPLICIT" = false ]]; then
+        local project_base=""
         if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-            local current_toplevel=$(git rev-parse --show-toplevel 2>/dev/null)
             local main_worktree=$(git worktree list --porcelain 2>/dev/null | grep -m1 "^worktree" | cut -d' ' -f2)
-
-            if [[ -n "$current_toplevel" ]] && [[ -n "$main_worktree" ]] && [[ "$current_toplevel" != "$main_worktree" ]]; then
-                # We're in a worktree (not the main repo)
-                PATH_PREFIX="$(dirname "$current_toplevel")"
-                echo "Detected worktree, using parent directory: $PATH_PREFIX"
-            fi
+            [[ -n "$main_worktree" ]] && project_base="$(basename "$main_worktree")"
         fi
+        [[ -z "$project_base" ]] && project_base="$(basename "$(pwd)")"
+        PATH_PREFIX="$HOME/worktrees/$project_base"
     fi
 
     # Validate required parameter
@@ -106,21 +103,24 @@ Examples:
         return 1
     fi
 
-    # Check if branch exists
-    local BRANCH_FLAG
-    if git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
-        # Branch exists, use -B to force reset
-        BRANCH_FLAG="-B"
-        echo "Branch '$BRANCH' exists, will reset to current HEAD"
+    # Decide how to materialize the branch in the new worktree
+    local -a WT_ARGS=(--no-checkout)
+    if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+        # Local branch exists, check it out as-is (preserve its tip)
+        WT_ARGS+=("$FULL_PATH" "$BRANCH")
+        echo "Branch '$BRANCH' exists locally, checking it out"
+    elif git show-ref --verify --quiet "refs/remotes/origin/$BRANCH"; then
+        # Remote branch exists, create local tracking branch from it
+        WT_ARGS+=(--track -b "$BRANCH" "$FULL_PATH" "origin/$BRANCH")
+        echo "Creating local branch '$BRANCH' tracking origin/$BRANCH"
     else
-        # Branch doesn't exist, use -b to create
-        BRANCH_FLAG="-b"
-        echo "Creating new branch '$BRANCH'"
+        # Branch doesn't exist anywhere, create new from current HEAD
+        WT_ARGS+=(-b "$BRANCH" "$FULL_PATH")
+        echo "Creating new branch '$BRANCH' from current HEAD"
     fi
 
-    # Create worktree with --no-checkout
     echo "Creating worktree at: $FULL_PATH"
-    git worktree add --no-checkout $BRANCH_FLAG "$BRANCH" "$FULL_PATH" || return 1
+    git worktree add "${WT_ARGS[@]}" || return 1
 
     # Either cd or open new window based on flag
     if [[ "$NEW_WINDOW" = true ]]; then
@@ -152,7 +152,7 @@ Arguments:
 
 Options:
     -b, --branch <name>     Branch name to checkout (default: same as path)
-    -p, --path-prefix <dir> Path prefix for worktree (default: .worktrees or parent of current worktree)
+    -p, --path-prefix <dir> Path prefix for worktree (default: \$HOME/worktrees/<project>)
     -h, --help              Display this help message
 
 Examples:
