@@ -148,7 +148,13 @@ function edwt() {
     local usage_msg="Usage: edwt [OPTIONS] <path>
 
 Create a git worktree, open the project in Zed, and move it to the next
-empty AeroSpace workspace (if AeroSpace is available).
+empty workspace.
+
+Supported window managers:
+    - AeroSpace (macOS) via 'aerospace' CLI
+    - COSMIC (Linux) via 'cos-cli'
+If neither is available, the worktree is created and Zed is opened
+without any workspace movement.
 
 Arguments:
     path                Target path for the worktree (required)
@@ -172,31 +178,70 @@ Examples:
         fi
     done
 
-    # Check if aerospace is available
-    local HAS_AEROSPACE=false
+    # Detect window manager
+    local WM=""
     if command -v aerospace >/dev/null 2>&1; then
-        HAS_AEROSPACE=true
+        WM="aerospace"
+    elif command -v cos-cli >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+        WM="cosmic"
     fi
 
-    # Find empty workspace if aerospace is available
+    # Find empty workspace
     local TARGET_WORKSPACE=""
-    if [[ "$HAS_AEROSPACE" = true ]]; then
-        # Check workspaces 1-5 for an empty one
-        for ws in {1..5}; do
-            local window_count=$(aerospace list-windows --workspace "$ws" 2>/dev/null | wc -l | tr -d ' ')
-            if [[ "$window_count" -eq 0 ]]; then
-                TARGET_WORKSPACE="$ws"
-                echo "Found empty workspace: $TARGET_WORKSPACE"
-                break
+    local TARGET_WORKSPACE_LABEL=""
+    local COS_ZED_SNAPSHOT=""
+    case "$WM" in
+        aerospace)
+            # Check workspaces 1-5 for an empty one
+            for ws in {1..5}; do
+                local window_count=$(aerospace list-windows --workspace "$ws" 2>/dev/null | wc -l | tr -d ' ')
+                if [[ "$window_count" -eq 0 ]]; then
+                    TARGET_WORKSPACE="$ws"
+                    TARGET_WORKSPACE_LABEL="$ws"
+                    echo "Found empty workspace: $TARGET_WORKSPACE_LABEL"
+                    break
+                fi
+            done
+            if [[ -z "$TARGET_WORKSPACE" ]]; then
+                # No empty workspace found, use current one
+                TARGET_WORKSPACE=$(aerospace list-workspaces --focused)
+                TARGET_WORKSPACE_LABEL="$TARGET_WORKSPACE"
+                echo "No empty workspace found, using current workspace: $TARGET_WORKSPACE_LABEL"
             fi
-        done
+            ;;
+        cosmic)
+            # Snapshot existing Zed window titles so we can identify the new one later.
+            # cos-cli matches --app-id with a partial, case-insensitive contains, so
+            # if Zed is already running we cannot disambiguate by app-id alone.
+            COS_ZED_SNAPSHOT=$(cos-cli info --json 2>/dev/null | jq -r '
+                .apps[]
+                | select((.app_id // "") | ascii_downcase | contains("zed"))
+                | (.title // "")
+            ' 2>/dev/null)
 
-        if [[ -z "$TARGET_WORKSPACE" ]]; then
-            # No empty workspace found, use current one
-            TARGET_WORKSPACE=$(aerospace list-workspaces --focused)
-            echo "No empty workspace found, using current workspace: $TARGET_WORKSPACE"
-        fi
-    fi
+            # Find first empty workspace in group 0 (limit to first 5 to match aerospace behavior).
+            # cos-cli's workspace --workspace flag wants the 0-based index; we display the 1-based name.
+            local empty_info
+            empty_info=$(cos-cli info --json 2>/dev/null | jq -r '
+                . as $root
+                | ($root.apps | map(.workspaces[] | select(.group_index == 0) | .index) | unique) as $occupied
+                | ($root.workspace_groups[0].workspaces // [])[:5]
+                | map(select((.index | tostring) as $i | ($occupied | map(tostring) | index($i)) | not))
+                | .[0] // empty
+                | "\(.index)\t\(.name)"
+            ' 2>/dev/null)
+            if [[ -n "$empty_info" ]]; then
+                TARGET_WORKSPACE="${empty_info%%	*}"
+                TARGET_WORKSPACE_LABEL="${empty_info##*	}"
+                echo "Found empty workspace: $TARGET_WORKSPACE_LABEL (index $TARGET_WORKSPACE)"
+            else
+                echo "No empty workspace found in first 5; Zed will open on the current workspace"
+            fi
+            ;;
+        *)
+            echo "No supported window manager detected (aerospace, cos-cli); skipping workspace move"
+            ;;
+    esac
 
     # Save current directory
     pushd . >/dev/null || return 1
@@ -214,17 +259,51 @@ Examples:
         return 1
     }
 
-    # If aerospace is available, move window to target workspace
-    if [[ "$HAS_AEROSPACE" = true ]] && [[ -n "$TARGET_WORKSPACE" ]]; then
-        # Give Zed a moment to fully launch
-        sleep 0.5
+    # Move Zed to target workspace
+    case "$WM" in
+        aerospace)
+            if [[ -n "$TARGET_WORKSPACE" ]]; then
+                # Give Zed a moment to fully launch
+                sleep 0.5
 
-        echo "Moving Zed window to workspace $TARGET_WORKSPACE..."
-        aerospace move-node-to-workspace "$TARGET_WORKSPACE"
+                echo "Moving Zed window to workspace $TARGET_WORKSPACE_LABEL..."
+                aerospace move-node-to-workspace "$TARGET_WORKSPACE"
 
-        echo "Switching to workspace $TARGET_WORKSPACE..."
-        aerospace workspace "$TARGET_WORKSPACE"
-    fi
+                echo "Switching to workspace $TARGET_WORKSPACE_LABEL..."
+                aerospace workspace "$TARGET_WORKSPACE"
+            fi
+            ;;
+        cosmic)
+            if [[ -n "$TARGET_WORKSPACE" ]]; then
+                # Poll cos-cli until a Zed window appears whose title is NOT in
+                # the pre-launch snapshot — that's the one we just opened.
+                local new_index=""
+                local attempt
+                for attempt in {1..20}; do
+                    new_index=$(cos-cli info --json 2>/dev/null | jq -r --arg known "$COS_ZED_SNAPSHOT" '
+                        ($known | split("\n") | map(select(length > 0))) as $known_titles
+                        | .apps[]
+                        | select((.app_id // "") | ascii_downcase | contains("zed"))
+                        | (.title // "") as $t
+                        | select(($known_titles | index($t)) | not)
+                        | .index
+                    ' 2>/dev/null | head -1)
+                    [[ -n "$new_index" ]] && break
+                    sleep 0.5
+                done
+
+                if [[ -n "$new_index" ]]; then
+                    echo "Moving Zed window (index $new_index) to workspace $TARGET_WORKSPACE_LABEL..."
+                    cos-cli move --index "$new_index" --workspace "$TARGET_WORKSPACE"
+
+                    echo "Switching to workspace $TARGET_WORKSPACE_LABEL..."
+                    cos-cli ws-activate --workspace "$TARGET_WORKSPACE"
+                else
+                    echo "Could not identify the new Zed window; leaving on current workspace"
+                fi
+            fi
+            ;;
+    esac
 
     # Return to original directory
     popd >/dev/null

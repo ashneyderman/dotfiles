@@ -43,21 +43,21 @@ alias lswt='git worktree list'
 # rmwt is now a function in .functions/worktrees.sh (supports multiple args and globs)
 
 # Claude
-alias cld='claude'
+alias cc='claude'
 ## -----
 ## with model selected
-alias clds='claude --model sonnet'
-alias cldo='claude --model opus'
-alias cldh='claude --model haiku'
+alias ccs='claude --model sonnet'
+alias cco='claude --model opus'
+alias cch='claude --model haiku'
 ## -----
 ## yolo mode
-alias cldy='claude --dangerously-skip-permissions'
-alias cldys='claude --dangerously-skip-permissions --model sonnet'
-alias cldyo='claude --dangerously-skip-permissions --model opus'
-alias cldyh='claude --dangerously-skip-permissions --model haiku'
+alias ccy='claude --dangerously-skip-permissions --effort xhigh --model claude-opus-4-6'
+alias ccys='claude --dangerously-skip-permissions --effort xhigh --model sonnet'
+alias ccyo='claude --dangerously-skip-permissions --effort xhigh --model opus'
+alias ccyh='claude --dangerously-skip-permissions --effort xhigh --model haiku'
 ## -----
 ## programmatic mode
-alias cldyp='claude --dangerously-skip-permissions -p'
-alias cldysp='claude --dangerously-skip-permissions --model sonnet -p'
-alias cldyop='claude --dangerously-skip-permissions --model opus -p'
-alias cldyhp='claude --dangerously-skip-permissions --model haiku -p'
+alias ccyp='claude --dangerously-skip-permissions --effort xhigh --model claude-opus-4-6 -p'
+alias ccysp='claude --dangerously-skip-permissions --effort xhigh --model sonnet -p'
+alias ccyop='claude --dangerously-skip-permissions --effort xhigh --model opus -p'
+alias ccyhp='claude --dangerously-skip-permissions --effort xhigh --model haiku -p'
