@@ -155,3 +155,6 @@ if.app-id="com.mitchellh.ghostty"
 run= [
   "layout floating",
 ]
+
+[workspace-to-monitor-force-assignment]
+"10" = 'Built-in Retina Display'
